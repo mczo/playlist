@@ -1,0 +1,15 @@
+{
+  "name": "playlist",
+  "version": "1.0.0",
+  "description": "基于网易云api的歌单",
+  "main": "app.js",
+  "repository": "git@github.com:mczo/playlist.git",
+  "author": "mczo <mczonet@yahoo.com>",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "koa": "^2.7.0",
+    "koa-ejs": "^4.2.0",
+    "request-promise": "^4.2.4"
+  }
+}
