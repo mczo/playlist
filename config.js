@@ -8,7 +8,8 @@ module.exports =
     },
 
     info: {
-        name: 'Mczo 的歌单'
+        name: 'Mczo 的歌单',
+        id: '53636965'
     },
 
     render: {
@@ -18,5 +19,11 @@ module.exports =
         cache: false,
         debug: true,
         async: true
+    },
+
+    rootPath: path.resolve(__dirname);
+
+    getPath: function(url) {
+        return path.join(this.rootPath, url);
     }
 }

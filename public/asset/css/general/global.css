@@ -1,0 +1,57 @@
+.text-left { text-align: left }
+.text-center { text-align: center }
+.text-right { text-align: right }
+
+/* 
+    按钮
+ */
+[on] { cursor: pointer }
+
+/* iconfont */
+.icon {
+    width: 1rem;
+    height: 1rem;
+    stroke-width: 0;
+    stroke: none;
+    fill: var(--color-one);
+    cursor: pointer;
+    display: block;
+}
+
+
+/* 响应式   (ms:320 mm:375 ml:425 t:768 l:1024 ll:1440 4k:2560) */
+[class*="visible-"] { display: none !important }
+@media screen and (max-width: 425px) { 
+    .visible-ml { display: block !important } 
+    .visible-flex-ml { display: flex !important } 
+
+    .hidden-ml { display: none !important }
+}
+
+@media screen and (min-width: 426px) and (max-width: 768px) { 
+    .visible-t { display: block !important }
+    .visible-flex-t { display: flex !important }
+
+    .hidden-t { display: none !important }
+}
+
+@media screen and (min-width: 769px) and (max-width: 1024px) { 
+    .visible-l { display: block !important } 
+    .visible-flex-l { display: flex !important }
+
+    .hidden-l { display: none !important }
+}
+
+@media screen and (min-width: 1025px) and (max-width: 1440px) { 
+    .visible-ll { display: block !important } 
+    .visible-flex-ll { display: flex !important }
+
+    .hidden-ll { display: none !important }
+}
+
+@media screen and (min-width: 1441px) and (max-width: 2560px) { 
+    .visible-4k { display: block !important } 
+    .visible-flex-4k { display: flex !important }
+
+    .hidden-4k { display: none !important }
+}

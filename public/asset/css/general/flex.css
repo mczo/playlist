@@ -1,0 +1,116 @@
+[data-flex] {
+    display: flex;
+}
+
+[data-flex~="inline"] {
+    display: inline-flex;
+}
+
+
+[data-flex~="row"] {
+    flex-direction: row;
+}
+
+[data-flex~="row-reverse"] {
+    flex-direction: row-reverse;
+}
+
+[data-flex~="col"] {
+    flex-direction: column;
+}
+
+[data-flex~="col-reverse"] {
+    flex-direction: column-reverse;
+}
+
+[data-flex~="wrap"] {
+    flex-wrap: wrap;
+}
+
+[data-flex~="main-start"] {
+    justify-content: start;
+}
+
+[data-flex~="main-center"] {
+    justify-content: center;
+}
+
+[data-flex~="main-end"] {
+    justify-content: end;
+}
+
+[data-flex~="main-between"] {
+    justify-content: space-between;
+}
+
+[data-flex~="main-around"] {
+    justify-content: space-around;
+}
+
+[data-flex~="cross-start"] {
+    align-items: flex-start;
+}
+
+[data-flex~="cross-center"] {
+    align-items: center;
+}
+
+[data-flex~="cross-end"] {
+    align-items: flex-end;
+}
+
+[data-flex~="cross-baseline"] {
+    align-items: baseline;
+}
+
+[data-flex~="cross-stretch"] {
+    align-items: stretch;
+}
+
+[data-flex~="content-cross-start"] {
+    align-content: flex-start;
+}
+
+[data-flex~="content-cross-center"] {
+    align-content: center;
+}
+
+[data-flex~="content-cross-end"] {
+    align-content: flex-end;
+}
+
+[data-flex~="content-cross-between"] {
+    align-content: space-between;
+}
+
+[data-flex~="content-cross-around"] {
+    align-content: space-around;
+}
+
+[data-flex~="content-cross-stretch"] {
+    align-content: stretch;
+}
+
+[data-flex] > [data-flex-item~="cross-start"] {
+    align-self: flex-start;
+}
+
+[data-flex] > [data-flex-item~="cross-center"] {
+    align-self: center;
+}
+
+[data-flex] > [data-flex-item~="cross-end"] {
+    align-self: flex-end;
+}
+
+[data-flex] > [data-flex-item~="cross-baseline"] {
+    align-self: baseline;
+}
+
+[data-flex] > [data-flex-item~="cross-stretch"] {
+    align-self: stretch;
+}
+
+[data-flex] > [data-flex-item~="separate"] {
+    flex-grow: 1;
+}

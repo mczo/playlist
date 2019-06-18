@@ -1,0 +1,139 @@
+[data-grid] {
+    display: grid
+}
+
+[data-grid~="inline"] {
+    display: inline-grid
+}
+
+[data-grid~="col"] {
+    grid-auto-flow: column
+}
+
+[data-grid~="row"] {
+    grid-auto-flow: row
+}
+
+[data-grid~="dense"] {
+    grid-auto-flow: dense
+}
+
+[data-grid~="content-main-start"] {
+    justify-content: start
+}
+
+[data-grid~="content-main-end"] {
+    justify-content: end
+}
+
+[data-grid~="content-main-center"] {
+    justify-content: center
+}
+
+[data-grid~="content-main-stretch"] {
+    justify-content: stretch
+}
+
+[data-grid~="content-main-around"] {
+    justify-content: space-around
+}
+
+[data-grid~="content-main-between"] {
+    justify-content: space-between
+}
+
+[data-grid~="content-main-evenly"] {
+    justify-content: space-evenly
+}
+
+[data-grid~="content-cross-start"] {
+    align-content: start
+}
+
+[data-grid~="content-cross-end"] {
+    align-content: end
+}
+
+[data-grid~="content-cross-center"] {
+    align-content: center
+}
+
+[data-grid~="content-cross-stretch"] {
+    align-content: stretch
+}
+
+[data-grid~="content-cross-around"] {
+    align-content: space-around
+}
+
+[data-grid~="content-cross-between"] {
+    align-content: space-between
+}
+
+[data-grid~="content-cross-evenly"] {
+    align-content: space-evenly
+}
+
+[data-grid~="main-start"] {
+    justify-items: start
+}
+
+[data-grid~="main-end"] {
+    justify-items: end
+}
+
+[data-grid~="main-center"] {
+    justify-items: center
+}
+
+[data-grid~="main-stretch"] {
+    justify-items: stretch
+}
+
+[data-grid~="cross-start"] {
+    align-items: start
+}
+
+[data-grid~="cross-end"] {
+    align-items: end
+}
+
+[data-grid~="cross-center"] {
+    align-items: center
+}
+
+[data-grid~="cross-stretch"] {
+    align-items: stretch
+}
+
+[data-item~="main-start"] {
+    justify-self: start
+}
+
+[data-item~="main-end"] {
+    justify-self: end
+}
+
+[data-item~="main-center"] {
+    justify-self: center
+}
+
+[data-item~="main-stretch"] {
+    justify-self: stretch
+}
+
+[data-item~="cross-start"] {
+    align-self: start
+}
+
+[data-item~="cross-end"] {
+    align-self: end
+}
+
+[data-item~="cross-center"] {
+    align-self: center
+}
+
+[data-item~="cross-stretch"] {
+    align-self: stretch
+}
