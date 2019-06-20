@@ -21,9 +21,9 @@ module.exports =
         async: true
     },
 
-    rootPath: path.resolve(__dirname);
+    rootPath: path.resolve(__dirname),
 
-    getPath: function(url) {
+    getPath (url) {
         return path.join(this.rootPath, url);
     }
 }

@@ -10,15 +10,24 @@ let playList;
 getList();
 
 module.exports = router => {
-    router.get('/', (ctx, next) => {
-        const cssData = afs.mergecss('general/reset', 'general/flex', 'general/grid', 'general/global', 'playlist/index');
+    router.get('/', async (ctx, next) => {
+        const unprocessed = {
+            cssData: afs.mergecss('general/reset', 'general/flex', 'general/grid', 'general/global', 'playlist/config', 'playlist/index'),
+            jsData: afs.mergejs('general/action', 'playlist/index'),
+            playList
+        };
 
-        const jsData = afs.mergejs('general/action', 'playlist/index');
+        await Promise.all( Object.values(unprocessed) )
+            .then(async data => {
+                const process = {
+                    info: config.info,
+                    data: new Object()
+                };
 
-        Promise.all([
-            cssData,
-            jsData
-        ])
+                Object.keys(unprocessed).map((key, index) => { process.data[key] = data[index] });
+
+                await ctx.render('index', process);
+            })
     });
 }
 
@@ -41,7 +50,7 @@ function getList() {
                     picUrl: i.album.picUrl,
                     mp3Url: '/song/' + i.id
                 });
-            }
+            };
 
             return playList;
         });

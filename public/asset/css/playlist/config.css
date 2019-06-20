@@ -1,0 +1,21 @@
+:root {
+    --text: 15px/1.6;
+
+    --color-one: #454322;
+    
+    /* 框架 */
+    --header-width: 4rem;
+
+    /* 播放器 */
+    --player-icon-size: 1.2rem;
+
+    --player-progress-height: .6rem;
+}
+
+/* @media screen and (min-width: 426px) {
+    :root {
+        --gap-col: 20vw;
+
+        --gravatar: 6.5rem
+    }
+} */

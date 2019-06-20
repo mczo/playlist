@@ -1,0 +1,13 @@
+<% include header %>
+
+    <div class="player-list">
+        <ul>
+            <% for(let item of data.playList) { %>
+                <li data-playId="<%- item.id %>">
+                    <span><%- item.name %></span>
+                </li>
+            <% } %>
+        </ul>
+    </div>
+
+<% include footer %>

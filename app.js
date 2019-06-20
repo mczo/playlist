@@ -12,6 +12,9 @@ const config = require('./config');
 // global
 global.config = config;
 
+// ejs
+render(app, config.render);
+
 // 音乐
 require('./routers/index') (index);
 
