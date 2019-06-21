@@ -2,11 +2,12 @@
 
     <div class="player-list">
         <ul>
-            <% for(let item of data.playList) { %>
-                <li data-playId="<%- item.id %>">
-                    <span><%- item.name %></span>
+            <% data.playList.forEach((item, index) => { %>
+                <li data-playId="<%- item.id %>" data-flex="cross-center">
+                    <span class="num"><%- index + 1 %></span>
+                    <span class="title"><%- item.name %></span>
                 </li>
-            <% } %>
+            <% }) %>
         </ul>
     </div>
 

@@ -2,9 +2,11 @@
     --text: 15px/1.6;
 
     --color-one: #454322;
+    --color-two: #6d6d6d;
     
     /* 框架 */
     --header-width: 4rem;
+    --gap-col-width: 1rem;
 
     /* 播放器 */
     --player-icon-size: 1.2rem;
