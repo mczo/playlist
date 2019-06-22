@@ -13,7 +13,7 @@ module.exports = router => {
     router.get('/', async (ctx, next) => {
         const unprocessed = {
             cssData: afs.mergecss('general/reset', 'general/flex', 'general/grid', 'general/global', 'playlist/config', 'playlist/index'),
-            jsData: afs.mergejs('general/action', 'playlist/index'),
+            jsData: afs.mergejs('general/action', 'playlist/player', 'playlist/index'),
             playList
         };
 
@@ -42,10 +42,13 @@ function getList() {
         .then(data => {
             const playList = new Array();
 
+            console.log(data)
+
             for(let i of data.result.tracks) {
                 playList.push({
                     id: i.id,
                     name: i.name,
+                    duration: i.duration,
                     alias: i.alias,
                     picUrl: i.album.picUrl,
                     mp3Url: '/song/' + i.id

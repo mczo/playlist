@@ -8,9 +8,9 @@ module.exports = router => {
 
         await nm.url(ctx.params.id)
             .then(res => {
-                res.data[0].url = res.data[0].url.replace(/^http/, 'https');
+                const url = res.data[0].url.replace(/^http/, 'https');
 
-                ctx.body = res;
+                ctx.redirect(url);
             });
         
 
