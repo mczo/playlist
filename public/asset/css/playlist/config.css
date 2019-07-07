@@ -1,23 +1,26 @@
 :root {
     --text: 15px/1.6;
 
-    --color-one: #454322;
-    --color-two: #6d6d6d;
+    --color-black: #454322;
+    --color-green: #6d6d6d;
+    --color-sakura: #FEDFE1;
     
     /* 框架 */
     --header-width: 4rem;
-    --gap-col-width: 1rem;
+    --gap-col-width: 1.5rem;
 
     /* 播放器 */
     --player-icon-size: 1.2rem;
 
-    --player-progress-height: .6rem;
+    --player-progress-height: .45rem;
 }
 
-/* @media screen and (min-width: 426px) {
+@media screen and (min-width: 769px) {
     :root {
-        --gap-col: 20vw;
+        /* 框架 */
+        --header-width: 15rem;
+        --gap-col-width: 3rem;
 
-        --gravatar: 6.5rem
+        --player-component: 5rem
     }
-} */
+}

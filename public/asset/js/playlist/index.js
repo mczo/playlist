@@ -1,5 +1,3 @@
-window.onload =  () => {
-    const playList = new PlayList();
+const playList = new PlayList();
 
-    playList.start();
-}
+playList.start();

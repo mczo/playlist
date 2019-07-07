@@ -65,6 +65,12 @@ function on_actions() {
 
     //动态添加事件
     Object.prototype.on = function(type, ele, fun, options = {}) {
+        if(typeof ele === 'function') {
+            options = fun || {};
+            fun = ele;
+            ele = undefined;
+        }
+
         if(!options.over) options.over = false;
         if(!options.preventDefault) options.preventDefault = false;
 
@@ -73,16 +79,22 @@ function on_actions() {
 
             if(options.preventDefault) e.preventDefault(); // 清楚默认事件
 
-            if(options.over) {
-                let elebox = document.querySelectorAll(ele);
+            const elebox = typeof ele === 'object' ? Array.of(ele) : document.querySelectorAll(ele);
 
+            if(options.over) {
                 for(let i of elebox) {
                     if(Array.from(e.path).includes(i)) {
+                        Reflect.set(i, 'x', e.x);
+                        Reflect.set(i, 'y', e.y);
                         return fun(i);
                     }
                 }
             } else {
-                if(Array.from(document.querySelectorAll(ele)).includes(e.target)) {
+                if(!ele) return fun(e.target);
+                
+                if(Array.from(elebox).includes(e.target)) {
+                    Reflect.set(e.target, 'x', e.x);
+                    Reflect.set(e.target, 'y', e.y);
                     return fun(e.target);
                 }
             }

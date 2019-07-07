@@ -17,7 +17,7 @@ module.exports =
         layout: false,
         viewExt: 'ejs',
         cache: false,
-        debug: true,
+        debug: false,
         async: true
     },
 

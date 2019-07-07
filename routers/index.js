@@ -42,6 +42,8 @@ function getList() {
         .then(data => {
             const playList = new Array();
 
+            const sslRep = new RegExp(/^http/);
+
             console.log(data)
 
             for(let i of data.result.tracks) {
@@ -50,8 +52,7 @@ function getList() {
                     name: i.name,
                     duration: i.duration,
                     alias: i.alias,
-                    picUrl: i.album.picUrl,
-                    mp3Url: '/song/' + i.id
+                    picUrl: i.album.picUrl.replace(sslRep, 'https')
                 });
             };
 

@@ -1,10 +1,10 @@
 html {
 	font: var(--text) "Helvetica Neue",Helvetica,Arial,"Microsoft Yahei","Hiragino Sans GB","Heiti SC","WenQuanYi Micro Hei",sans-serif;
-	color: var(--color-one)
+	color: var(--color-black)
 }
 
 a {
-    color: var(--color-one)
+    color: var(--color-black)
 }
 
 /* 
@@ -28,6 +28,23 @@ a {
     }
 
 
+@media screen and (min-width: 769px) {
+    #area-aside {
+        grid-area: aside;
+        grid-template-columns: repeat(3, var(--player-component));
+        grid-template-rows: var(--player-component);
+        grid-auto-rows: var(--player-component)
+    }
+
+        #area-aside .player-pic {
+            grid-area: 1 / 1 / 4 / 4
+        }
+
+        #area-aside .player-info {
+            grid-area: 4 / 1 / 5 / 4;
+            align-self: center
+        }
+}
 /*
     侧边栏
 */
@@ -40,15 +57,37 @@ a {
         height: var(--player-icon-size)
     }
 
+        #area-aside .icon.focus,
+        #area-aside .icon:hover {
+            fill: var(--color-sakura);
+        }
+
     #area-aside .player-progress {
         position: absolute;
         top: 0;
         right: 0;
 
+        cursor: pointer;
+
         height: 100%;
         width: var(--player-progress-height);
         transform: translateX(100%)
     }
+
+        #area-aside .player-progress .bar {
+            width: 100%;
+            height: 0;
+            background-color: var(--color-sakura);
+            animation-timing-function: linear;
+            animation-fill-mode: forwards;
+            transition: height ease-out 160ms
+        }
+
+        @keyframes music-bar-end {
+            to {
+                height: 100%;
+            }
+        }
 
     #area-aside .player-pic img {
         display: block;
@@ -62,8 +101,17 @@ a {
 
         #area-aside .player-info h1 {
             font-size: var(--player-icon-size);
-            font-weight: initial
+            font-weight: initial;
+            width: var(--player-icon-size);
+            word-break: break-all;
+            text-align: center
         }
+
+@media screen and (min-width: 769px) {
+    #area-aside .player-info h1 {
+        width: 100%;
+    }
+}
 
 /*
     播放列表
@@ -78,9 +126,13 @@ a {
         height: 2.3rem
     }
 
+    #area-content .player-list li.focus .title {
+        color: var(--color-sakura)
+    }
+
         #area-content .player-list li .num {
             width: 2.1rem;
-            color: var(--color-two)
+            color: var(--color-green)
         }
 
         #area-content .player-list li .title {
