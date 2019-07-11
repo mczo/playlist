@@ -138,5 +138,6 @@ a {
         #area-content .player-list li .title {
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap
+            white-space: nowrap;
+            cursor: pointer
         }

@@ -89,7 +89,8 @@ class PlayList {
     }
 
     addActionEvent() { // 添加操作事件
-        on('click', this.action[playlist.progress], et => { // 进度条
+        document.body
+        .on('click', this.action[playlist.progress], et => { // 进度条
             const proportion = et.y / et.clientHeight;
 
             Reflect.set(this.action, playlist.progress, 'unset'); // 设置css为unset 才可以拖动
