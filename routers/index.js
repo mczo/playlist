@@ -1,4 +1,5 @@
 const rp = require('request-promise');
+const schedule = require('node-schedule');
 const AsyncFile = require('../lib/asyncFile');
 
 const { config } = global;
@@ -7,7 +8,9 @@ const afs = new AsyncFile( config.getPath('/public/asset/') );
 
 let playList;
 
+// 每天凌晨一点更新
 getList();
+schedule.scheduleJob('0 0 1 * * *', getList);
 
 module.exports = router => {
     router.get('/', async (ctx, next) => {
@@ -44,7 +47,7 @@ function getList() {
 
             const sslRep = new RegExp(/^http/);
 
-            console.log(data)
+            // console.log(data)
 
             for(let i of data.result.tracks) {
                 playList.push({
