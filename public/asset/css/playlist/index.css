@@ -1,10 +1,7 @@
 html {
 	font: var(--text) "Helvetica Neue",Helvetica,Arial,"Microsoft Yahei","Hiragino Sans GB","Heiti SC","WenQuanYi Micro Hei",sans-serif;
-	color: var(--color-black)
-}
-
-a {
-    color: var(--color-black)
+    color: var(--color-font);
+    background-color: var(--color-bg)
 }
 
 /* 
@@ -12,132 +9,178 @@ a {
 */
 #playlist-frame {
     height: 100vh;
-    grid-template-columns: var(--header-width) var(--gap-col-width) auto;
-    grid-template-rows: 1fr;
-    grid-template-areas: "aside . content"
+    grid-template-rows: var(--header-height) var(--control-radius) auto
 }
 
-    #area-aside {
-        grid-area: aside;
-        grid-auto-rows: var(--header-width);
-        grid-template-rows: var(--header-width) auto repeat(4, var(--header-width));
+    #area-header {
+        grid-area: 1 / 1 / 3 / 2
     }
 
-    #area-content {
-        grid-area: content
+    #area-control {
+        grid-area: 2 / 1 / 4 / 2
     }
 
 
 @media screen and (min-width: 769px) {
-    #area-aside {
-        grid-area: aside;
-        grid-template-columns: repeat(3, var(--player-component));
-        grid-template-rows: var(--player-component);
-        grid-auto-rows: var(--player-component)
-    }
-
-        #area-aside .player-pic {
-            grid-area: 1 / 1 / 4 / 4
-        }
-
-        #area-aside .player-info {
-            grid-area: 4 / 1 / 5 / 4;
-            align-self: center
-        }
 }
 /*
     侧边栏
 */
-#area-aside {
-    position: relative
+#area-header {
 }
 
-    #area-aside .icon {
-        width: var(--player-icon-size);
-        height: var(--player-icon-size)
-    }
-
-        #area-aside .icon.focus,
-        #area-aside .icon:hover {
-            fill: var(--color-sakura);
-        }
-
-    #area-aside .player-progress {
-        position: absolute;
-        top: 0;
-        right: 0;
-
-        cursor: pointer;
-
-        height: 100%;
-        width: var(--player-progress-height);
-        transform: translateX(100%)
-    }
-
-        #area-aside .player-progress .bar {
-            width: 100%;
-            height: 0;
-            background-color: var(--color-sakura);
-            animation-timing-function: linear;
-            animation-fill-mode: forwards;
-            transition: height ease-out 160ms
-        }
-
-        @keyframes music-bar-end {
-            to {
-                height: 100%;
-            }
-        }
-
-    #area-aside .player-pic img {
-        display: block;
+    #area-header .cover {
         width: 100%;
         height: 100%
     }
 
-    #area-aside .player-info {
-        padding: 1rem 0
-    }
-
-        #area-aside .player-info h1 {
-            font-size: var(--player-icon-size);
-            font-weight: initial;
-            width: var(--player-icon-size);
-            word-break: break-all;
-            text-align: center
+        #area-header .cover img {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: cover
         }
 
-@media screen and (min-width: 769px) {
-    #area-aside .player-info h1 {
-        width: 100%;
-    }
-}
+        #area-header .cover img + .placeholder-img { display: none }
+
+        #area-header .cover .placeholder-img {
+            display: block;
+            z-index: -1
+        }
 
 /*
     播放列表
 */
-#area-content {
-    overflow-y: auto;
-    padding: .65rem 0
+#area-control {
+    background: #fff;
+    border-radius: var(--control-radius) var(--control-radius) 0 0;
+    padding: var(--control-radius) 5% 0 5%
 }
 
-    #area-content .player-list li {
-        font-size: 1rem;
-        height: 2.3rem
+    #control-name-artist {
+        text-align: center
     }
 
-    #area-content .player-list li.focus .title {
-        color: var(--color-sakura)
+        #control-name-artist div.name {
+            height: 1.8rem;
+            line-height: 1.8rem;
+            font-size: 1.2rem;
+            margin-bottom: .4rem
+        }
+            
+            #control-name-artist div.name span:nth-child(1) + .placeholder-text {
+                display: none
+            }
+
+            #control-name-artist div.name .placeholder-text {
+                width: 10rem
+            }
+
+        #control-name-artist div.artist {
+            height: 1.2rem;
+            line-height: 1.2rem;
+            font-size: 1rem;
+            color: var(--color-meta)
+        }
+
+            #control-name-artist div.artist span:nth-child(1) + .placeholder-text {
+                display: none
+            }
+
+            #control-name-artist div.artist .placeholder-text {
+                width: 5rem
+            }
+
+    #control-process {
+        margin-top: 1.5rem
     }
 
-        #area-content .player-list li .num {
-            width: 2.1rem;
-            color: var(--color-green)
+        #control-process .bar {
+            position: relative;
+            width: 100%;
+            height: 8px;
+            border-radius: 999px;
+            overflow: hidden
         }
 
-        #area-content .player-list li .title {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            cursor: pointer
+            #control-process .bar > span {
+                display: block;
+                position: absolute;
+                height: inherit;
+                border-radius: inherit
+            }
+
+            #control-process .bar .fill {
+                z-index: 3;
+                background: var(--color-focus);
+                width: 0;
+                animation-timing-function: linear;
+                animation-fill-mode: forwards;
+                transition: width ease-out 160ms
+            }
+
+            @keyframes music-bar-end {
+                to {
+                    width: 100%
+                }
+            }
+
+            #control-process .bar .buff {
+                z-index: 2;
+                background: #d6d6d6
+            }
+
+            #control-process .bar .bg {
+                width: 100%;
+                z-index: 1;
+                background: #eaeaea
+            }
+
+        #control-process .time {
+            margin-top: .2rem
         }
+
+        #control-process .time .text {
+            color: var(--color-meta);
+            font-size: .85rem
+        }
+
+    #control-btn {
+        margin-top: 1.5rem
+    }
+
+        #control-btn > button:not() {}
+
+        #control-btn > button {
+            width: 3.3rem;
+            height: 3.3rem;
+            background: var(--color-focus);
+            border-radius: 999px
+        }
+
+            #control-btn > button .graph {
+                background-color: #fff;
+                width: 1.1rem;
+                height: 1.1rem;
+                transition: all ease-in 300ms;
+            }
+
+            #control-btn > button.prev .graph {
+                -webkit-clip-path: polygon(0 0, 12% 0, 12% 48%, 100% 0, 100% 100%, 12% 52%, 12% 100%, 0 100%);
+                clip-path: polygon(0 0, 12% 0, 12% 48%, 100% 0, 100% 100%, 12% 52%, 12% 100%, 0 100%)
+            }
+
+            #control-btn > button.play .graph {
+                -webkit-clip-path: polygon(6% 0, 94% 50%, 6% 100%);
+                clip-path: polygon(6% 0, 94% 50%, 6% 100%)
+            }
+
+            #control-btn > button.pause .graph {
+                -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%)
+            }
+
+            #control-btn > button.next .graph {
+                -webkit-clip-path: polygon(0 0, 88% 48%, 88% 0, 100% 0, 100% 100%, 88% 100%, 88% 52%, 0 100%);
+                clip-path: polygon(0 0, 88% 48%, 88% 0, 100% 0, 100% 100%, 88% 100%, 88% 52%, 0 100%)
+            }

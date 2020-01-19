@@ -1,26 +1,18 @@
 :root {
-    --text: 15px/1.6;
+    --text: 16px/1.6;
 
-    --color-black: #454322;
-    --color-green: #6d6d6d;
-    --color-sakura: #FEDFE1;
+    --color-font: #232020;
+    --color-meta: #a4a4a4;
+    --color-bg: #f4f4f4;
+    --color-focus: #ff7315;
+    /* --color-bg: #3a3535; */
     
-    /* 框架 */
-    --header-width: 4rem;
-    --gap-col-width: 1.5rem;
-
-    /* 播放器 */
-    --player-icon-size: 1.2rem;
-
-    --player-progress-height: .45rem;
+    --control-radius: 25px;
+    --header-height: 100vw
 }
 
 @media screen and (min-width: 769px) {
     :root {
-        /* 框架 */
-        --header-width: 15rem;
-        --gap-col-width: 3rem;
-
-        --player-component: 5rem
+        
     }
 }

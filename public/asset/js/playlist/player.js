@@ -3,13 +3,15 @@ const playlist = {
             proxyGet: Symbol('handler get'),
             proxySet: Symbol('handler set'),
 
-            progress: Symbol('player process'),
-            pic: Symbol('player pic'),
-            info: Symbol('player info'),
-            prev: Symbol('player prev'),
-            status: Symbol('player status'),
-            next: Symbol('player next'),
-            radom: Symbol('player radom')
+            cover: Symbol(),
+            name: Symbol(),
+            artist: Symbol(),
+            progress: Symbol(),
+            progressBuff: Symbol(),
+            progressFill: Symbol(),
+            btnPrev: Symbol(),
+            btnStatus: Symbol(),
+            btnNext: Symbol()
         }
 
 
@@ -17,177 +19,198 @@ class PlayList {
     constructor() {
         this.player = document.getElementById('player');
  
-        this.action = new Proxy({
-            [playlist.progress]: document.querySelector('.player-progress'),
-            [playlist.pic]: document.querySelector('.player-pic'),
-            [playlist.info]: document.querySelector('.player-info'),
-            [playlist.prev]: document.querySelector('.player-prev'),
-            [playlist.status]: document.querySelector('.player-status'),
-            [playlist.next]: document.querySelector('.player-next'),
-            [playlist.radom]: document.querySelector('.player-radom'),
+        this.control = new Proxy({
+            [playlist.cover]: document.querySelector('#area-header .cover'),
+            [playlist.name]: document.querySelector('#control-name-artist .name'),
+            [playlist.artist]: document.querySelector('#control-name-artist .artist'),
+            [playlist.progress]: document.querySelector('#control-process .bar'),
+            [playlist.progressBuff]: document.querySelector('#control-process .bar .buff'),
+            [playlist.progressFill]: document.querySelector('#control-process .bar .fill'),
+            [playlist.btnPrev]: document.querySelector('#control-btn .prev'),
+            [playlist.btnStatus]: document.querySelector('#control-btn .status'),
+            [playlist.btnNext]: document.querySelector('#control-btn .next'),
             writable: false
         }, {
             get: this[playlist.proxyGet].bind(this),
             set: this[playlist.proxySet].bind(this)
         });
 
-        this.list = document.querySelectorAll('#area-content .player-list ul li');
+        // this.radom = false; // 随机播放
 
         this.index = 0;
+        this.list = new Proxy({
+            play: new Array(),
+            played: new Array()
+        }, {
+            get: (obj, prop) => {
+                switch(prop) {
+                    case 'current':
+                        return obj['play'][this.index];
+                        break;
+                }
+            }
+        });
 
-        this.radom = false; // 随机播放
-
-        this.playedList = new Array(); // 播放过的列表
+        this.timer = {
+            buff: null,
+            process: null
+        }
 
         this.autoplay = true;
     }
 
     start() {
-        this.current = this.list[this.index].dataset;
+        fetch('/api/list') // 获取播放列表
+            .then(response => {
+                if(!response.ok) return Promise.reject()
 
-        this.player.src = `/api/song/${this.current.id}`; // 开始加载
+                return response.json();
+            })
+            .then(json => {  // 获取成功
+                this.list.play = json.fulfillmentValue;
+                this.player.src = `/api/song/${this.list.current.id}`; // 开始加载
 
-        this.addPlayEvent();
-        this.addActionEvent();
+                this.addPlayEvent();
+                this.addActionEvent();
+            })
+            .catch( _ => { // 网络错误
+            });
     }
 
     addPlayEvent() { // 添加播放事件
-
         this.player
             .on('loadstart', _ => {
-                Reflect.set(this.action, playlist.info, '加载中');
+                Reflect.set(this.control, playlist.name, this.list.current.name);
+                Reflect.set(this.control, playlist.artist, this.list.current.artist);
+                Reflect.set(this.control, playlist.cover, this.list.current.picUrl);
+
+                this.timer.buff = setInterval(_ => {
+                    const buff = this.player.buffered;
+
+                    if(buff.length) {
+                        const loaded = buff.end(0) / this.list.current.duration * 100000;
+
+                        Reflect.set(this.control, playlist.progressBuff, loaded);
+                    }
+                }, 100); 
+
+                this.timer.process = setInterval(_ => {
+                    Reflect.set(this.control, playlist.progress, 'time');
+                }, 1000);
             })
             .on('canplay', _ => {
-                Reflect.set(this.action, playlist.info, this.current.title);
-                Reflect.set(this.action, playlist.pic, this.current.pic);
-
-                // 播放列表
-                document.querySelector(`li[data-id="${this.current.id}"]`).classList.add('focus');
-            })
-            .on('canplaythrough', _ => {
                 if(this.player.paused) this.autoplay = false; // 自动播放为关
                 else {
                     this.autoplay = true;
 
-                    Reflect.set(this.action, playlist.status, true); // 添加进度条
-                    Reflect.set(this.action, playlist.progress, 'add'); // 添加进度条
-
+                    Reflect.set(this.control, playlist.status, 'play'); // 播放
                 }
+            })
+            .on('canplaythrough', _ => {
+                clearInterval(this.timer.buff);
+                Reflect.set(this.control, playlist.progressBuff, 100);
             })
             .on('play', _ => {
-                if(!this.autoplay) {
-                    Reflect.set(this.action, playlist.progress, 'add'); // 添加进度条
-                }
+                Reflect.set(this.control, playlist.progress, 'add'); // 添加进度条
             })
             .on('ended', _ => {
-                Reflect.get(this.action, playlist.next);
+                Reflect.get(this.control, playlist.next);
             })
             .on('error', _ => {
-
-                Reflect.get(this.action, playlist.next);
+                Reflect.get(this.control, playlist.next);
             });
     }
 
     addActionEvent() { // 添加操作事件
         document.body
-        .on('click', this.action[playlist.progress], et => { // 进度条
-            const proportion = et.y / et.clientHeight;
+        // .on('click', this.control[playlist.progress], et => { // 进度条
+        //     // const proportion = et.y / et.clientHeight;
 
-            Reflect.set(this.action, playlist.progress, 'unset'); // 设置css为unset 才可以拖动
-            Reflect.set(this.action, playlist.progress, proportion * 100); // 设置滚动条长度
+        //     // Reflect.set(this.control, playlist.progressFill, 'unset'); // 设置css为unset 才可以拖动
+        //     // Reflect.set(this.control, playlist.progressFill, proportion * 100); // 设置滚动条长度
 
-            clearTimeout(this.progressTimer);
-            this.progressTimer = setTimeout(_ => {
-                this.player.currentTime = this.player.duration * proportion;
-                Reflect.set(this.action, playlist.progress, 'add'); // 重设动画时间
-            }, 160);
+        //     // clearTimeout(this.progressTimer);
+        //     // this.progressTimer = setTimeout(_ => {
+        //     //     this.player.currentTime = this.player.duration * proportion;
+        //     //     Reflect.set(this.control, playlist.progressFill, 'add'); // 重设动画时间
+        //     // }, 160);
 
+        // }, { over: true })
+
+        .on('click', this.control[playlist.btnPrev], _ => { //  上一首
+            Reflect.get(this.control, playlist.btnPrev);
         }, { over: true })
 
-        .on('click', this.action[playlist.prev], et => { //  上一首
-            Reflect.get(this.action, playlist.prev);
-        }, { over: true })
-
-        .on('click', this.action[playlist.status], et => { //  继续/暂停
+        .on('click', this.control[playlist.btnStatus], _ => { //  继续/暂停
             if(this.player.paused) {
-                Reflect.set(this.action, playlist.status, true);
-                Reflect.set(this.action, playlist.progress, 'play');
+                Reflect.set(this.control, playlist.btnStatus, 'play');
+                Reflect.set(this.control, playlist.progress, 'play');
             } else if (this.player.played) {
-                Reflect.set(this.action, playlist.status, false);
-                Reflect.set(this.action, playlist.progress, 'pause');
+                Reflect.set(this.control, playlist.btnStatus, 'pause');
+                Reflect.set(this.control, playlist.progress, 'pause');
             }
         }, { over: true })
 
-        .on('click', this.action[playlist.next], et => { //  下一首
-            Reflect.get(this.action, playlist.next);
+        .on('click', this.control[playlist.btnNext], _ => { //  下一首
+            Reflect.get(this.control, playlist.btnNext);
         }, { over: true })
 
-        .on('click', this.action[playlist.radom], et => { // 随机
-            const classList = et.querySelector('svg').classList;
-            classList.toggle('focus');
-            this.radom = classList.value.includes('focus');
-        }, { over: true })
-
-        .on('click', '.player-list li[data-id] .title', et => { // 播放列表
-            const li = et.getParents('li');
-
-            Reflect.set(this.action, playlist.status, li.dataset.id);
-        });
+        // .on('click', this.control[playlist.radom], et => { // 随机
+        //     const classList = et.querySelector('svg').classList;
+        //     classList.toggle('focus');
+        //     this.radom = classList.value.includes('focus');
+        // }, { over: true });
         
         // 切换标签 修复进度条
         document.addEventListener('visibilitychange', _ => {
             if(!document.hidden && !this.player.paused) {
-                Reflect.set(this.action, playlist.progress, 'unset'); // 设置css为unset 才可以拖动
+                Reflect.set(this.control, playlist.progress, 'unset'); // 设置css为unset 才可以拖动
 
                 setTimeout(_ => {
                     const proportion = this.player.currentTime / this.player.duration;
-                    Reflect.set(this.action, playlist.progress, proportion * 100); // 设置滚动条长度
-                    Reflect.set(this.action, playlist.progress, 'add'); // 重设动画时间
+                    Reflect.set(this.control, playlist.progress, proportion * 100); // 设置滚动条长度
+                    Reflect.set(this.control, playlist.progress, 'add'); // 重设动画时间
                 }, 100);
             }
         });
 
-        this.actionloaded = true;
+        this.controlloaded = true;
 
     }
 
     [playlist.proxyGet] (target, key) {
-        if(!this.actionloaded) return target[key];
+        if(!this.controlloaded) return target[key];
 
         switch(key) {
-            case playlist.prev:
+            case playlist.btnPrev:
                 if(!this.radom) {
                     --this.index;
                     
-                    if(this.index < 0) this.index = this.list.length - 1;
+                    if(this.index < 0) this.index = this.list.play.length - 1;
                 } else {
-                    if(this.playedList.length > 0) {
+                    if(this.list.played.length > 0) {
                         this.index = this.playedList.pop();
                     }
                 }
 
-                Reflect.set(this.action, playlist.progress, 're');
+                Reflect.set(this.control, playlist.progress, 're'); // 重置进度条
 
-                this.current = this.list[this.index].dataset;
-
-                this.player.src = `/api/song/${this.current.id}`; // 开始加载
+                this.player.src = `/api/song/${this.list.current.id}`; // 开始加载
                 break;
 
-            case playlist.next:
+            case playlist.btnNext:
                 if(!this.radom) {
                     ++this.index;
                     
-                    if(this.index >= this.list.length) this.index = 0;
+                    if(this.index >= this.list.play.length) this.index = 0;
                 } else {
-                    this.playedList.push(this.index); // 吧播放过的加入列表用于 prev
+                    this.list.played.push(this.index); // 吧播放过的加入列表用于 prev
                     this.index = parseInt(Math.random() * (this.list.length - 1) ); // 生成随机数
                 }
 
-                Reflect.set(this.action, playlist.progress, 're');
+                Reflect.set(this.control, playlist.progress, 're'); // 重置进度条
 
-                this.current = this.list[this.index].dataset;
-
-                this.player.src = `/api/song/${this.current.id}`; // 开始加载
+                this.player.src = `/api/song/${this.list.current.id}`; // 开始加载
 
                 break;
         }
@@ -198,83 +221,102 @@ class PlayList {
     [playlist.proxySet] (target, key, value) {
         switch (key) {
             case playlist.progress:
-                const bar = target[key].firstElementChild;
+                const {[playlist.progress]: bar, [playlist.progressBuff]: barBuff, [playlist.progressFill]: barFill} = this.control;
 
                 if(typeof value === 'number') { // 拖动进度条事件
-                    bar.style.height = value + '%';
-
+                    barFill.style.width = value + '%';
                 } else {
                     switch(value) {
+                        case 'time':   
+                            const   played = document.querySelector('#control-process .time .played'),
+                                    total = document.querySelector('#control-process .time .total');
+
+                            const formate = milliSecond => {
+                                const date = new Date();
+                                date.setTime(milliSecond * 1000);
+
+                                let minute = date.getMinutes(),
+                                    second = date.getSeconds();
+                                if(minute.toString().length < 2) {
+                                    minute = '0' + minute;
+                                }
+                                if(second.toString().length < 2) {
+                                    second = '0' + second;
+                                }
+
+                                return `${minute}:${second}`;
+                            }
+
+                            played.innerText = formate(this.player.currentTime);
+                            total.innerText = formate(this.player.duration);
+                            break;
+
                         case 'play':
-                            bar.style.animationPlayState = 'running';
+                            barFill.style.animationPlayState = 'running';
                             break;
                         
                         case 'pause':
-                            bar.style.animationPlayState = 'paused';
+                            barFill.style.animationPlayState = 'paused';
                             break;
 
                         case 'add':
-                            bar.style.animationDuration = (this.player.duration - this.player.currentTime) * 1000 + 'ms';
-                            bar.style.animationName = 'music-bar-end';
+                            barFill.style.animationDuration = (this.player.duration - this.player.currentTime) * 1000 + 'ms';
+                            barFill.style.animationName = 'music-bar-end';
                             break;
 
                         case 'unset':
-                            bar.style.animationDuration = 'unset';
-                            bar.style.animationName = 'unset';
+                            barFill.style.animationDuration = 'unset';
+                            barFill.style.animationName = 'unset';
                             break;
 
                         case 're':
-                            document.querySelector(`li[data-id="${this.current.id}"]`).classList.remove('focus');
-
-                            if(bar.attributes.getNamedItem('style'))
-                                bar.attributes.removeNamedItem('style');
+                            barFill.attributes.removeNamedItem('style');
+                            barBuff.attributes.removeNamedItem('style');
                             break;
                     }
                 }
                 break;
 
-            case playlist.pic:
-                const img = target[key].querySelector('img');
+            case playlist.cover:
+                const domsImg = document.createElement('img');
 
-                img.src = value;
+                domsImg.src = value;
+
+                domsImg.onload = _ => {
+                    this.control[key].prepend(domsImg);
+                }
                 break;
 
-            case playlist.info:
-                const title = target[key].querySelector('.title');
+            case playlist.name:
+                const domsName = document.createElement('span');
+                domsName.innerText = value; 
 
-                title.innerText = value;
+                this.control[key].prepend(domsName);
                 break;
 
-            case playlist.status:
-                const [play, pause] = target[key].getElementsByClassName('icon');
-                
-                switch(typeof value) {
-                    case 'boolean':
-                        if(value) {
-                            // icon
-                            play.classList.add('hide');
-                            pause.classList.remove('hide');
-                            // music 
-                            this.player.play();
-                        } else {
-                            // icon
-                            play.classList.remove('hide');
-                            pause.classList.add('hide');
-                            // music
-                            this.player.pause();
-                        }
+            case playlist.artist:
+                const domsArtist = document.createElement('span');
+                domsArtist.innerText = value;
+
+                this.control[key].prepend(domsArtist);
+                break;
+
+            case playlist.progressBuff:
+                this.control[key].style.width = value + '%';
+                break;
+
+            case playlist.btnStatus:
+                switch(value) {
+                    case 'play':
+                        this.control[key].classList.replace('play', 'pause');
+
+                        this.player.play();
                         break;
+                    
+                    case 'pause':
+                        this.control[key].classList.replace('pause', 'play');
 
-                    case 'string':
-                        Reflect.set(this.action, playlist.progress, 're');
-
-                        const li = document.querySelector(`li[data-id="${value}"]`);
-
-                        this.index = Array.from(this.list).indexOf(li);
-
-                        this.current = li.dataset;
-
-                        this.player.src = `/api/song/${this.current.id}`; // 开始加载
+                        this.player.pause();
                         break;
                 }
                 break;

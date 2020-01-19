@@ -1,19 +1,39 @@
 <% include header %>
 
-    <div class="player-list">
-        <ul>
-            <% data.playList.forEach((item, index) => { %>
-                <li
-                    data-id="<%- item.id %>"
-                    data-title="<%- item.name %>"
-                    data-pic="<%- item.picUrl %>"
-                    data-flex="cross-center"
-                    >
-                    <span class="num"><%- index + 1 %></span>
-                    <span class="title"><%- item.name %></span>
-                </li>
-            <% }) %>
-        </ul>
+<section id="control-name-artist">
+    <div class="item name">
+        <span class="placeholder-text"></span>
     </div>
+
+    <div class="item artist">
+        <span class="placeholder-text"></span>
+    </div>
+</section>
+
+<section id="control-process">
+    <div class="bar">
+        <span class="fill"></span>
+        <span class="buff"></span>
+        <span class="bg"></span>
+    </div>
+    <div class="time" data-flex="main-between">
+        <span class="text played">00:00</span>
+        <span class="text total">00:00</span>
+    </div>
+</section>
+
+<section id="control-btn" data-flex="main-around">
+    <button class="prev" data-flex="cross-center main-center">
+        <span class="graph"></span>
+    </button>
+
+    <button class="status play" data-flex="cross-center main-center">
+        <span class="graph"></span>
+    </button>
+
+    <button class="next" data-flex="cross-center main-center">
+        <span class="graph"></span>
+    </button>
+</section>
 
 <% include footer %>
