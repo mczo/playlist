@@ -77,12 +77,13 @@ html {
 
         #area-header .cover .placeholder-img {
             display: block;
-            z-index: -1
+            z-index: -1;
+            border-radius: var(--header-radius)
         }
 
         #area-header .cover .shadow {
             position: absolute;
-            left: 0;
+            left: 3px;
             top: 25px;
             width: 100%;
             height: 100%;
@@ -92,17 +93,18 @@ html {
             background-repeat: no-repeat;
             background-position: center;
             background-size: cover;
-            display: var(--cover-shadow)
+            display: var(--cover-shadow);
+            background-color: var(--color-header-shadow)
         }
 
 /*
     播放控制
 */
 #area-control {
-    background: #fff;
+    background: var(--color-bg-control);
     border-radius: var(--control-radius);
     padding: var(--control-padding);
-    box-shadow: var(--control-shadow)
+    box-shadow: var(--control-shadow) var(--color-control-shadow)
 }
 
     #control-name-artist {
@@ -122,7 +124,15 @@ html {
             }
 
             #control-name-artist div.name .placeholder-text {
-                width: 10rem
+                width: 10rem;
+                height: 1.8rem;
+                animation: 550ms ease-in-out infinite alternate load-name
+            }
+
+            @keyframes load-name {
+                to {
+                    width: 11.2rem
+                }
             }
 
         #control-name-artist div.artist {
@@ -138,7 +148,15 @@ html {
             }
 
             #control-name-artist div.artist .placeholder-text {
-                width: 5rem
+                width: 5rem;
+                height: 1.2rem;
+                animation: 550ms ease-in-out 275ms infinite alternate load-artist
+            }
+
+            @keyframes load-artist {
+                to {
+                    width: 6rem
+                }
             }
 
         #control-name-artist button.radom {
@@ -159,6 +177,7 @@ html {
     }
 
         #control-process .bar {
+            cursor: pointer;
             position: relative;
             width: 100%;
             height: 8px;
@@ -190,13 +209,13 @@ html {
 
             #control-process .bar .buff {
                 z-index: 2;
-                background: #d6d6d6
+                background: var(--color-bar-buff)
             }
 
             #control-process .bar .bg {
                 width: 100%;
                 z-index: 1;
-                background: #eaeaea
+                background: var(--color-bar-bg)
             }
 
         #control-process .time {
@@ -210,7 +229,7 @@ html {
 
     #control-btn {
         margin-top: 1.5rem;
-        padding: 0 6%
+        padding: 0 7%
     }
 
         #control-btn > button:not() {}
@@ -222,7 +241,7 @@ html {
             #control-btn > button.status {
                 background: var(--color-focus);
                 border-radius: 999px;
-                box-shadow: 0px 10px 15px -5px var(--color-focus)
+                box-shadow: var(--control-status-shadow)
             }
 
                 #control-btn > button.status .icon {

@@ -4,9 +4,15 @@
     --color-text: #232020;
     --color-meta-text: #a4a4a4;
     --color-bg: #f4f4f4;
+    --color-bg-control: #fff;
     --color-focus: #ff7315;
     --color-main-icon: #fff;
     --color-meta-icon: #c1c1c1;
+    --color-header-shadow: #eaeaea;
+    --color-bar-bg: #eaeaea;
+    --color-bar-buff: #d6d6d6;
+    --color-placeholder-text: #e4e4e4;
+    --color-placeholder-img: #e4e4e4;
     
     --header-height: 100vw;
     --header-radius: unset;
@@ -15,7 +21,8 @@
     --control-padding: 25px 5%;
 
     --cover-shadow: none;
-    --control-shadow: unset
+    --control-shadow: unset;
+    --control-status-shadow: 0 10px 15px -5px var(--color-focus);
 }
 
 @media screen and (min-width: 426px) {
@@ -23,7 +30,8 @@
         --gap-row: 100px;
         --header-height: 70vw;
 
-        --control-shadow: 0px 0px 20px 15px #0000000d
+        --control-shadow: 0px 0px 20px 15px;
+        --color-control-shadow: #0000000d
     }
 }
 
@@ -34,6 +42,31 @@
         --control-padding: 30px 7%;
 
         --cover-shadow: block;
-        --control-shadow: 0px 20px 20px 12px #0000000d
+        --control-shadow: 4px 24px 22px 1px;
+        --color-control-shadow: #ccc
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-text: #f4f4f4;
+        --color-meta-text: #828282;
+        --color-bg: #232020;
+        --color-bg-control: #3a3535;
+        --color-header-shadow: #131313;
+        --color-control-shadow: #171717;
+        --color-bar-bg: #484848;
+        --color-bar-buff: #696969;
+        --color-placeholder-text: #656565;
+        --color-placeholder-img: #696969;
+
+        --control-status-shadow: unset;
+    }
+}
+
+@media screen and (min-width: 426px) and (max-width: 768px) and (prefers-color-scheme: dark) {
+    :root {
+        --control-shadow: 0 0 15px 0;
+        --color-control-shadow: #1f1f1fc7
     }
 }

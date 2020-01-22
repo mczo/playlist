@@ -302,7 +302,7 @@ class PlayList {
                 break;
 
             case playlist.cover:
-                const domsShadow = this.control[key].querySelector('.shadow');
+                const domsShadow = target[key].querySelector('.shadow');
                 const domsImg = document.createElement('img');
 
                 domsImg.src = value;
@@ -355,7 +355,11 @@ class PlayList {
     [playlist.proxyDel] (target, key) {
         switch(key) {
             case playlist.cover:
-                target[key].querySelector('img').remove();
+                if(target[key].querySelector('img'))
+                    target[key].querySelector('img').remove();
+
+                if(target[key].querySelector('.shadow').attributes.getNamedItem('style'))
+                    target[key].querySelector('.shadow').attributes.removeNamedItem('style');
                 break;
 
             case playlist.name:
