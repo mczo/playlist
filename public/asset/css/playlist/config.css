@@ -1,11 +1,12 @@
 :root {
     --text: 16px/1.6;
 
-    --color-font: #232020;
-    --color-meta: #a4a4a4;
+    --color-text: #232020;
+    --color-meta-text: #a4a4a4;
     --color-bg: #f4f4f4;
     --color-focus: #ff7315;
-    /* --color-bg: #3a3535; */
+    --color-main-icon: #fff;
+    --color-meta-icon: #c1c1c1;
     
     --header-height: 100vw;
     --header-radius: unset;
@@ -13,13 +14,16 @@
     --control-radius: 25px 25px 0 0;
     --control-padding: 25px 5%;
 
-    --cover-shadow: none
+    --cover-shadow: none;
+    --control-shadow: unset
 }
 
 @media screen and (min-width: 426px) {
     :root {
         --gap-row: 100px;
-        --header-height: 70vw
+        --header-height: 70vw;
+
+        --control-shadow: 0px 0px 20px 15px #0000000d
     }
 }
 
@@ -29,6 +33,7 @@
         --control-radius: 0 30px 30px 0;
         --control-padding: 30px 7%;
 
-        --cover-shadow: block
+        --cover-shadow: block;
+        --control-shadow: 0px 20px 20px 12px #0000000d
     }
 }

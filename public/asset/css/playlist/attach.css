@@ -13,3 +13,11 @@
     background: #e4e4e4;
     margin: 0 auto
 }
+
+.icon {
+    background-color: var(--color-meta-icon);
+    cursor: pointer;
+    width: 1.1rem;
+    height: 1.1rem;
+    transition: all 0.2s linear
+}
