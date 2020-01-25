@@ -15,6 +15,7 @@
     --color-placeholder-img: #e4e4e4;
     
     --header-height: 100vw;
+    --header-height-less: 0px;
     --header-radius: unset;
     --gap-row: 25px; 
     --control-radius: 25px 25px 0 0;

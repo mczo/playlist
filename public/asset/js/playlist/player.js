@@ -4,6 +4,7 @@ const playlist = {
             proxySet: Symbol('handler set'),
             proxyDel: Symbol('handler deleteProperty'),
 
+            root: Symbol(),
             cover: Symbol(),
             name: Symbol(),
             artist: Symbol(),
@@ -13,7 +14,9 @@ const playlist = {
             btnPrev: Symbol(),
             btnStatus: Symbol(),
             btnNext: Symbol(),
-            btnRadom: Symbol()
+            btnRadom: Symbol(),
+            lyric: Symbol(),
+            bottom: Symbol()
         }
 
 
@@ -22,6 +25,7 @@ class PlayList {
         this.player = document.getElementById('player');
  
         this.control = new Proxy({
+            [playlist.root]: document.querySelector('#area-control'),
             [playlist.cover]: document.querySelector('#area-header .cover'),
             [playlist.name]: document.querySelector('#control-name-artist .name'),
             [playlist.artist]: document.querySelector('#control-name-artist .artist'),
@@ -32,6 +36,8 @@ class PlayList {
             [playlist.btnStatus]: document.querySelector('#control-btn .status'),
             [playlist.btnNext]: document.querySelector('#control-btn .next'),
             [playlist.btnRadom]: document.querySelector('#control-name-artist .radom'),
+            [playlist.lyric]: document.querySelector('#control-lyric'),
+            [playlist.bottom]: document.querySelector('#control-bottom'),
             writable: false
         }, {
             get: this[playlist.proxyGet].bind(this),
@@ -42,30 +48,29 @@ class PlayList {
         this.index = 0;
         this.list = {
             play: new Array(),
-            played: new Array()
+            played: new Array(),
+            lyric: null
         };
 
         this.timer = {
             buff: null,
             process: null,
-            processWidth: null
+            processWidth: null,
+            lrc: null,
+            slider: null
         }
 
         this.autoplay = true;
         this.controlloaded = false;
         this.radom = false; // 随机播放
+        this.touch = new Object();
     }
 
     start() {
-        fetch('/api/list') // 获取播放列表
-            .then(response => {
-                if(!response.ok) return Promise.reject()
-
-                return response.json();
-            })
+        this.rq('/api/list') // 获取播放列表
             .then(json => {  // 获取成功
                 this.list.play = json.fulfillmentValue;
-                this.player.src = `/api/song/${this.list.play[this.index].id}`; // 开始加载
+                // this.player.src = `/api/song/${this.list.play[this.index].id}`; // 开始加载
 
                 this.addPlayEvent();
                 this.addActionEvent();
@@ -81,6 +86,7 @@ class PlayList {
                 Reflect.set(this.control, playlist.artist, this.list.play[this.index].artist);
                 Reflect.set(this.control, playlist.cover, this.list.play[this.index].picUrl);
 
+                // 缓冲进度
                 this.timer.buff = setInterval(_ => {
                     const buff = this.player.buffered;
 
@@ -89,12 +95,30 @@ class PlayList {
 
                         Reflect.set(this.control, playlist.progressBuff, loaded);
                     }
-                }, 100); 
-
+                }, 100);
+            })
+            .on('durationchange', _ => {
                 this.timer.process = setInterval(_ => {
                     Reflect.set(this.control, playlist.progress, 'time');
                 }, 1000);
             })
+            .on('loadedmetadata', _ => {
+                // 歌词
+                this.rq('/api/lyric/' + this.list.play[this.index].id)
+                    .then(json => {
+                        this.list.lyric = json;
+
+                        if(json.id == this.list.play[this.index].id) {
+                            Reflect.set(this.control, playlist.lyric, undefined);
+                        }
+                    });
+                this.timer.lrc = setInterval(_ => {
+                    Reflect.get(this.control, playlist.lyric);
+                }, 500);
+            })
+            // .on('progress', _ => {
+                
+            // })
             .on('canplay', _ => {
                 this.controlloaded = true;
 
@@ -121,9 +145,11 @@ class PlayList {
                 Reflect.deleteProperty(this.control, playlist.cover);
                 Reflect.deleteProperty(this.control, playlist.name);
                 Reflect.deleteProperty(this.control, playlist.artist);
+                Reflect.deleteProperty(this.control, playlist.progress);
                 Reflect.deleteProperty(this.control, playlist.progressBuff);
                 Reflect.deleteProperty(this.control, playlist.progressFill);
                 Reflect.deleteProperty(this.control, playlist.btnStatus);
+                Reflect.deleteProperty(this.control, playlist.lyric);
 
                 Reflect.get(this.control, playlist.btnNext);
             })
@@ -140,7 +166,7 @@ class PlayList {
     }
 
     addActionEvent() { // 添加操作事件
-        document.body
+        this.control[playlist.root]
         .on('click', this.control[playlist.progress], et => { // 进度条
             const proportion = (et.x - et.offsetLeft) / et.clientWidth;
 
@@ -152,16 +178,17 @@ class PlayList {
                 this.player.currentTime = this.player.duration * proportion;
                 Reflect.set(this.control, playlist.progress, 'add'); // 重设动画时间
             }, 160);
-
         }, { over: true })
 
         .on('click', this.control[playlist.btnPrev], _ => { //  上一首
             Reflect.deleteProperty(this.control, playlist.cover);
             Reflect.deleteProperty(this.control, playlist.name);
             Reflect.deleteProperty(this.control, playlist.artist);
+            Reflect.deleteProperty(this.control, playlist.progress);
             Reflect.deleteProperty(this.control, playlist.progressBuff);
             Reflect.deleteProperty(this.control, playlist.progressFill);
             Reflect.deleteProperty(this.control, playlist.btnStatus);
+            Reflect.deleteProperty(this.control, playlist.lyric);
 
             Reflect.get(this.control, playlist.btnPrev);
         }, { over: true })
@@ -184,16 +211,74 @@ class PlayList {
             Reflect.deleteProperty(this.control, playlist.cover);
             Reflect.deleteProperty(this.control, playlist.name);
             Reflect.deleteProperty(this.control, playlist.artist);
+            Reflect.deleteProperty(this.control, playlist.progress);
             Reflect.deleteProperty(this.control, playlist.progressBuff);
             Reflect.deleteProperty(this.control, playlist.progressFill);
             Reflect.deleteProperty(this.control, playlist.btnStatus);
+            Reflect.deleteProperty(this.control, playlist.lyric);
 
             Reflect.get(this.control, playlist.btnNext);
         }, { over: true })
 
         .on('click', this.control[playlist.btnRadom], et => { // 随机
             Reflect.set(this.control, playlist.btnRadom, et);
-        }, { over: true });
+        }, { over: true })
+
+        .on('touchstart', e => {
+            clearInterval(this.timer.slider);
+            this.touch.start = e.touches[0].clientY; 
+            this.touch.movePrev = null;
+            this.touch.multiple = 1;
+            this.touch.currentHeight = 0;
+
+            this.touch.openedHeight = document.getElementById('control-bottom').getBoundingClientRect().bottom - document.documentElement.clientHeight;
+        }, { original: true })
+        .on('touchmove', e => {
+            if(!this.touch.movePrev) this.touch.movePrev = e.touches[0].clientY;
+            let speed = this.touch.movePrev - e.touches[0].clientY;
+
+            const currentHeight = parseFloat( document.documentElement.style.getPropertyValue('--header-height-less') );
+
+            if(this.control[playlist.bottom].getBoundingClientRect().bottom < document.documentElement.clientHeight || currentHeight < 0) {
+                this.touch.multiple = .3;
+            } else this.touch.multiple = 1;
+            speed *= this.touch.multiple;
+
+            this.touch.currentHeight = ( isNaN(currentHeight) ? 0 : currentHeight ) + speed;
+            document.documentElement.style.setProperty('--header-height-less', this.touch.currentHeight + 'px');
+
+            this.touch.movePrev = e.touches[0].clientY;
+        }, { original: true })
+        .on('touchend', e => {
+            const anime = (golf, seesaw) => {
+                this.timer.slider = setInterval(_ => {
+                    const speed = (golf - this.touch.currentHeight) / 4;
+                    this.touch.currentHeight += speed;
+                    console.log(this.touch.currentHeight, speed)
+    
+                    if(-.01 < speed && speed < .01) {
+                        this.touch.currentHeight = golf;
+                        clearInterval(this.timer.slider);
+                    }
+    
+                    document.documentElement.style.setProperty('--header-height-less', this.touch.currentHeight + 'px');
+                }, 50);
+            }
+
+            if(this.touch.start > e.changedTouches[0].clientY) { // 上拉
+                if(this.touch.multiple < 1) {
+                    anime(this.touch.openedHeight, 1);
+                } else {
+                    anime(0, 1);
+                }
+            } else { // 下拉
+                if(this.touch.multiple < 1) {
+
+                }
+            }
+        }, { original: true })
+        .on('touchcancel', e => {
+        }, { original: true })
         
         // 切换标签 修复进度条
         document.addEventListener('visibilitychange', _ => {
@@ -240,6 +325,26 @@ class PlayList {
                 }
 
                 this.player.src = `/api/song/${this.list.play[this.index].id}`; // 开始加载
+
+                break;
+
+            case playlist.lyric:
+                if(!this.list.lyric) return;
+
+                for( const time of Object.keys(this.list.lyric.lrc).reverse() ) {
+                    const nodeTernet = target[key].querySelector(`li[data-time="${time}"]`);
+                    if(!nodeTernet || this.player.currentTime * 1000 < time) continue;
+
+                    const   originalOffsetTop = target[key].querySelector('li').offsetTop,
+                            terentOffsetTop = nodeTernet.offsetTop;
+
+                    let nodeUlHeight = nodeTernet.offsetHeight;
+                    if(this.list.lyric.tlyric) nodeUlHeight += nodeTernet.nextElementSibling.offsetHeight;
+                    
+                    target[key].querySelector('.list').style.height = nodeUlHeight + 'px';
+                    target[key].querySelector('ul').style.transform = `translate3d(0, ${originalOffsetTop - terentOffsetTop}px, 0)`;
+                    break;
+                }
 
                 break;
         }
@@ -347,7 +452,36 @@ class PlayList {
 
             case playlist.btnRadom:
                 value.classList.toggle('on');
-                this.radom = value.classList.value.includes('on');
+                this.radom = value.classList.contains('on');
+                break;
+
+            case playlist.lyric:
+                const nodeList = target[key].querySelector('.list');
+                const nodeUl = document.createElement('ul');
+                for( const [lrcTime, lrcParagraph] of Object.entries(this.list.lyric.lrc) ) {
+                    for(const [tlyricTime, tlyricParagraph] of Object.entries(this.list.lyric.tlyric) ) {
+                        if(lrcTime !== tlyricTime) continue;
+
+                        const   lrcNode = document.createElement('li'),
+                                tlyricNode = document.createElement('li');                  
+                        lrcNode.innerText = lrcParagraph;
+                        lrcNode.dataset.time = lrcTime;
+
+                        tlyricNode.innerText = tlyricParagraph;
+
+                        nodeUl.append(lrcNode, tlyricNode);
+
+                        break;
+                    }
+                }
+
+                nodeList.prepend(nodeUl);
+
+                const nodeLi1 = nodeList.querySelector('li');
+                let nodeUlHeight = nodeLi1.offsetHeight;
+                if(this.list.lyric.tlyric) nodeUlHeight += nodeLi1.nextElementSibling.offsetHeight;
+                nodeList.style.height = nodeUlHeight + 'px';
+
                 break;
         }
     }
@@ -369,6 +503,11 @@ class PlayList {
             case playlist.artist:
                 target[key].querySelector('span').remove();
                 break;
+
+            case playlist.progress:
+                document.querySelector('#control-process .time .played').innerText = '00:00';
+                document.querySelector('#control-process .time .total').innerText = '00:00';
+                break;
             
             case playlist.progressFill:
                 if(target[key].attributes.getNamedItem('style'))
@@ -383,6 +522,24 @@ class PlayList {
             case playlist.btnStatus:
                 this.control[key].classList.replace('pause', 'play');
                 break;
+
+            case playlist.lyric:
+                clearInterval(this.timer.lrc);
+                this.list.lyric = null;
+                if(target[key].querySelector('.list').attributes.getNamedItem('style'))
+                    target[key].querySelector('.list').attributes.removeNamedItem('style');
+                if(target[key].querySelector('ul'))
+                    target[key].querySelector('ul').remove();
+                break;
         }
+    }
+
+    rq(url) {
+        return fetch(url) // 获取播放列表
+            .then(response => {
+                if(!response.ok) return Promise.reject()
+
+                return response.json();
+            });
     }
 }

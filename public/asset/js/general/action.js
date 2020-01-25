@@ -73,6 +73,7 @@ function on_actions() {
 
         if(!options.over) options.over = false;
         if(!options.preventDefault) options.preventDefault = false;
+        if(!options.original) options.original = false;
 
         (this || document).addEventListener(type, e => {
             e.path = e.path || (e.composedPath && e.composedPath()); // 兼容path
@@ -90,7 +91,12 @@ function on_actions() {
                     }
                 }
             } else {
-                if(!ele) return fun(e.target);
+                if(!ele) {
+                    if(options.original)
+                        return fun(e);
+                    
+                    return fun(e.target);
+                } 
                 
                 if(Array.from(elebox).includes(e.target)) {
                     Reflect.set(e.target, 'x', e.x);
