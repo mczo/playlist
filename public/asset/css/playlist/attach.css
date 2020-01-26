@@ -19,3 +19,5 @@
     height: 1.1rem;
     transition: all 0.2s linear
 }
+
+#control-btn > button:not() {}

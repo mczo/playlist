@@ -75,6 +75,13 @@ function on_actions() {
         if(!options.preventDefault) options.preventDefault = false;
         if(!options.original) options.original = false;
 
+        const end = e => {
+            if(options.original)
+                return fun(e);
+
+            return fun(e.target);
+        }
+
         (this || document).addEventListener(type, e => {
             e.path = e.path || (e.composedPath && e.composedPath()); // 兼容path
 
@@ -85,23 +92,23 @@ function on_actions() {
             if(options.over) {
                 for(let i of elebox) {
                     if(Array.from(e.path).includes(i)) {
-                        Reflect.set(i, 'x', e.x);
-                        Reflect.set(i, 'y', e.y);
-                        return fun(i);
+                        Object.defineProperty(e, 'target', {
+                            configurable: true,
+                            writable: true
+                        });
+                        
+                        e.target = i;
+                        
+                        end(e);
                     }
                 }
             } else {
                 if(!ele) {
-                    if(options.original)
-                        return fun(e);
-                    
-                    return fun(e.target);
+                    end(e);
                 } 
                 
                 if(Array.from(elebox).includes(e.target)) {
-                    Reflect.set(e.target, 'x', e.x);
-                    Reflect.set(e.target, 'y', e.y);
-                    return fun(e.target);
+                    end(e);
                 }
             }
             

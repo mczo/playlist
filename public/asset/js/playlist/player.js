@@ -70,7 +70,7 @@ class PlayList {
         this.rq('/api/list') // 获取播放列表
             .then(json => {  // 获取成功
                 this.list.play = json.fulfillmentValue;
-                // this.player.src = `/api/song/${this.list.play[this.index].id}`; // 开始加载
+                this.player.src = `/api/song/${this.list.play[this.index].id}`; // 开始加载
 
                 this.addPlayEvent();
                 this.addActionEvent();
@@ -154,7 +154,7 @@ class PlayList {
                 Reflect.get(this.control, playlist.btnNext);
             })
             .on('error', _ => {
-                this.controlloaded = false;
+                // this.controlloaded = false;
 
                 Reflect.deleteProperty(this.control, playlist.cover);
                 Reflect.deleteProperty(this.control, playlist.name);
@@ -166,9 +166,9 @@ class PlayList {
     }
 
     addActionEvent() { // 添加操作事件
-        this.control[playlist.root]
-        .on('click', this.control[playlist.progress], et => { // 进度条
-            const proportion = (et.x - et.offsetLeft) / et.clientWidth;
+        document.body
+        .on('click', this.control[playlist.progress], e => { // 进度条
+            const proportion = (e.x - e.target.offsetLeft) / e.target.clientWidth;
 
             Reflect.set(this.control, playlist.progress, 'unset'); // 设置css为unset 才可以拖动
             Reflect.set(this.control, playlist.progress, proportion * 100); // 设置滚动条长度
@@ -178,7 +178,7 @@ class PlayList {
                 this.player.currentTime = this.player.duration * proportion;
                 Reflect.set(this.control, playlist.progress, 'add'); // 重设动画时间
             }, 160);
-        }, { over: true })
+        }, { original: true, over: true })
 
         .on('click', this.control[playlist.btnPrev], _ => { //  上一首
             Reflect.deleteProperty(this.control, playlist.cover);
@@ -224,61 +224,96 @@ class PlayList {
             Reflect.set(this.control, playlist.btnRadom, et);
         }, { over: true })
 
-        .on('touchstart', e => {
+        .on('touchstart', this.control[playlist.root], e => {
             clearInterval(this.timer.slider);
-            this.touch.start = e.touches[0].clientY; 
             this.touch.movePrev = null;
+            this.touch.moveStart = null;
             this.touch.multiple = 1;
             this.touch.currentHeight = 0;
 
-            this.touch.openedHeight = document.getElementById('control-bottom').getBoundingClientRect().bottom - document.documentElement.clientHeight;
-        }, { original: true })
-        .on('touchmove', e => {
-            if(!this.touch.movePrev) this.touch.movePrev = e.touches[0].clientY;
+            if(!this.touch.animeStatus) { // 如果还在动画 不会读取
+                const   diff = this.control[playlist.bottom].getBoundingClientRect().bottom - document.documentElement.clientHeight,
+                        currentHeight = parseFloat( document.documentElement.style.getPropertyValue('--header-height-less') );
+
+                this.touch.slider = { // 开始滑动之前 获得数据
+                    diff: diff,
+                    nodeOpenedHeight: parseFloat( this.control[playlist.root].dataset.openedHeight )
+                }
+
+                if(diff < 0 || currentHeight < 0) {
+                    this.touch.long = {
+                        moveArea: diff || currentHeight
+                    }
+                } else {
+                    this.touch.long = null;
+                }
+            }
+
+        }, { original: true, over: true })
+        .on('touchmove', this.control[playlist.root], e => {
+            if(!this.touch.movePrev) {
+                this.touch.movePrev = e.touches[0].clientY;
+                this.touch.moveStart = e.touches[0].clientY;
+            }
             let speed = this.touch.movePrev - e.touches[0].clientY;
 
-            const currentHeight = parseFloat( document.documentElement.style.getPropertyValue('--header-height-less') );
+            const   currentHeight = parseFloat( document.documentElement.style.getPropertyValue('--header-height-less') ),
+                    clientHeight = document.documentElement.clientHeight,
+                    bottomOffsetBottom = this.control[playlist.bottom].getBoundingClientRect().bottom;
 
-            if(this.control[playlist.bottom].getBoundingClientRect().bottom < document.documentElement.clientHeight || currentHeight < 0) {
-                this.touch.multiple = .3;
-            } else this.touch.multiple = 1;
-            speed *= this.touch.multiple;
+            if(this.touch.long) {
+                if(0 >= currentHeight && currentHeight >= this.touch.long.moveArea) this.touch.multiple = 1;
+                else this.touch.multiple = .3;
+            } else {
+                if(bottomOffsetBottom < clientHeight || currentHeight < 0) this.touch.multiple = .3;
+                else this.touch.multiple = 1;
+            }
+
+            speed *= this.touch.multiple; // 超过范围时减速
 
             this.touch.currentHeight = ( isNaN(currentHeight) ? 0 : currentHeight ) + speed;
             document.documentElement.style.setProperty('--header-height-less', this.touch.currentHeight + 'px');
 
             this.touch.movePrev = e.touches[0].clientY;
-        }, { original: true })
-        .on('touchend', e => {
-            const anime = (golf, seesaw) => {
-                this.timer.slider = setInterval(_ => {
-                    const speed = (golf - this.touch.currentHeight) / 4;
-                    this.touch.currentHeight += speed;
-                    console.log(this.touch.currentHeight, speed)
-    
-                    if(-.01 < speed && speed < .01) {
-                        this.touch.currentHeight = golf;
-                        clearInterval(this.timer.slider);
-                    }
-    
-                    document.documentElement.style.setProperty('--header-height-less', this.touch.currentHeight + 'px');
-                }, 50);
+        }, { original: true, over: true })
+        .on('touchend', this.control[playlist.root], e => {
+            if(!this.touch.moveStart) return;
+
+            let openedHeightValue, originalValue = 0;
+            if( isNaN( this.touch.slider.nodeOpenedHeight ) ) {
+                openedHeightValue = this.touch.slider.diff;
+            } else {
+                openedHeightValue = this.touch.slider.nodeOpenedHeight + this.touch.slider.diff;
             }
 
-            if(this.touch.start > e.changedTouches[0].clientY) { // 上拉
+            if(this.touch.long) {
+                openedHeightValue = this.touch.long.moveArea;
+
+                let toggle = openedHeightValue;
+                openedHeightValue = originalValue;
+                originalValue = toggle;
+            }
+
+            this.control[playlist.root].dataset.openedHeight = openedHeightValue;
+
+            if(this.touch.moveStart > e.changedTouches[0].clientY) { // 上拉
                 if(this.touch.multiple < 1) {
-                    anime(this.touch.openedHeight, 1);
+                    this.anime(openedHeightValue);
                 } else {
-                    anime(0, 1);
+                    this.control[playlist.root].dataset.openedHeight = undefined;
+                    this.anime(originalValue);
                 }
-            } else { // 下拉
+            } else if(this.touch.moveStart < e.changedTouches[0].clientY) { // 下拉
                 if(this.touch.multiple < 1) {
-
+                    this.control[playlist.root].dataset.openedHeight = undefined;
+                    this.anime(originalValue);
+                } else {
+                    this.anime(openedHeightValue);
                 }
             }
-        }, { original: true })
-        .on('touchcancel', e => {
-        }, { original: true })
+        }, { original: true, over: true })
+        .on('touchcancel', this.control[playlist.root], e => {
+        }, { original: true, over: true })
         
         // 切换标签 修复进度条
         document.addEventListener('visibilitychange', _ => {
@@ -293,6 +328,23 @@ class PlayList {
             }
         });
 
+    }
+
+    anime(golf) {
+        this.timer.slider = setInterval(_ => {
+            this.touch.animeStatus = true;
+
+            const speed = (golf - this.touch.currentHeight) / 4;
+            this.touch.currentHeight += speed;
+
+            if(-.1 < speed && speed < .1) {
+                this.touch.currentHeight = golf;
+                this.touch.animeStatus = false;
+                clearInterval(this.timer.slider);
+            }
+
+            document.documentElement.style.setProperty('--header-height-less', this.touch.currentHeight + 'px');
+        }, 50);
     }
 
     [playlist.proxyGet] (target, key) {
@@ -321,7 +373,14 @@ class PlayList {
                     if(this.index >= this.list.play.length) this.index = 0;
                 } else {
                     this.list.played.push(this.index);
-                    this.index = parseInt(Math.random() * (this.list.play.length - 1) ); // 生成随机数
+
+                    if(this.list.played.length === this.list.play.length) {
+                        this.list.played = new Array();
+                    }
+
+                    do {
+                        this.index = parseInt(Math.random() * (this.list.play.length - 1) ); // 生成随机数
+                    } while(this.index in this.list.played);
                 }
 
                 this.player.src = `/api/song/${this.list.play[this.index].id}`; // 开始加载
@@ -422,7 +481,13 @@ class PlayList {
                 const domsName = document.createElement('span');
                 domsName.innerText = value; 
 
+                const prevHeight = this.control[key].offsetHeight;
+
                 this.control[key].prepend(domsName);
+
+                if(this.control[key].offsetHeight > prevHeight) {
+                    this.control[key].classList.add('rows');
+                }
                 break;
 
             case playlist.artist:
@@ -497,6 +562,7 @@ class PlayList {
                 break;
 
             case playlist.name:
+                this.control[key].classList.remove('rows');
                 target[key].querySelector('span').remove();
                 break;
             

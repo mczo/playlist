@@ -49,10 +49,11 @@ module.exports = router => {
 
                         const   parseMin = parseInt(minute),
                                 parseSec = parseInt(second),
-                                parseMs = parseInt(millisecond);
+                                strMs = millisecond;
 
                         if(!isNaN(parseMin) && paragraph !== '') {
-                            const totalMs = (parseMin * 60 + parseSec) * 1000 + parseMs * 10;
+                            const mult = 10 ** (3 - strMs.length);
+                            const totalMs = (parseMin * 60 + parseSec) * 1000 + parseInt(strMs) * mult;
                             lrcList[key][totalMs] = paragraph;
                         } 
                         // else {

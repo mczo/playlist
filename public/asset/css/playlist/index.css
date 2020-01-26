@@ -111,20 +111,23 @@ html {
     box-shadow: var(--control-shadow) var(--color-control-shadow)
 }
 
-    #control-bottom {
-        /* height: 1rem */
-    }
-
     #control-name-artist {
         grid-template-columns: 1fr auto;
         grid-template-rows: auto auto;
-        grid-row-gap: .4rem
+        grid-gap: .4rem
     }
 
         #control-name-artist div.name {
             min-height: 1.8rem;
             line-height: 1.8rem;
             font-size: 1.2rem
+        }
+
+        @media screen and (min-width: 769px) {
+            #control-name-artist div.name.rows {
+                line-height: 1.4rem;
+                font-size: 1rem
+            }
         }
             
             #control-name-artist div.name span:nth-child(1) + .placeholder-text {
@@ -185,7 +188,6 @@ html {
     }
 
         #control-process .bar {
-            cursor: pointer;
             position: relative;
             width: 100%;
             height: 8px;
@@ -240,7 +242,6 @@ html {
         padding: 0 7%
     }
 
-        #control-btn > button:not() {}
         #control-btn > button {
             width: 3.3rem;
             height: 3.3rem
@@ -282,6 +283,7 @@ html {
 
         #control-lyric .list {
             width: 100%;
+            height: 1.4rem;
             text-align: center;
             overflow: hidden
         }
@@ -315,3 +317,7 @@ html {
                     width: 11.2rem
                 }
             }
+
+    #control-bottom {
+        height: 1rem
+    }
