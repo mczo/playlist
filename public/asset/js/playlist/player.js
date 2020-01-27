@@ -237,7 +237,7 @@ class PlayList {
 
                 this.touch.slider = { // 开始滑动之前 获得数据
                     diff: diff,
-                    nodeOpenedHeight: parseFloat( this.control[playlist.root].dataset.openedHeight )
+                    nodeOpenedHeight: parseFloat( e.target.dataset.openedHeight )
                 }
 
                 if(diff < 0 || currentHeight < 0) {
@@ -294,18 +294,18 @@ class PlayList {
                 originalValue = toggle;
             }
 
-            this.control[playlist.root].dataset.openedHeight = openedHeightValue;
+            e.target.dataset.openedHeight = openedHeightValue;
 
             if(this.touch.moveStart > e.changedTouches[0].clientY) { // 上拉
                 if(this.touch.multiple < 1) {
                     this.anime(openedHeightValue);
                 } else {
-                    this.control[playlist.root].dataset.openedHeight = undefined;
+                    e.target.dataset.openedHeight = undefined;
                     this.anime(originalValue);
                 }
             } else if(this.touch.moveStart < e.changedTouches[0].clientY) { // 下拉
                 if(this.touch.multiple < 1) {
-                    this.control[playlist.root].dataset.openedHeight = undefined;
+                    e.target.dataset.openedHeight = undefined;
                     this.anime(originalValue);
                 } else {
                     this.anime(openedHeightValue);

@@ -87,7 +87,7 @@ html {
         #area-header .cover .shadow {
             position: absolute;
             left: 3px;
-            top: 25px;
+            top: 20px;
             width: 100%;
             height: 100%;
             z-index: -1;
@@ -135,14 +135,14 @@ html {
             }
 
             #control-name-artist div.name .placeholder-text {
-                width: 10rem;
+                width: 40%;
                 height: 1.8rem;
                 animation: 550ms ease-in-out infinite alternate load-name
             }
 
             @keyframes load-name {
                 to {
-                    width: 11.2rem
+                    width: 45%
                 }
             }
 
@@ -159,14 +159,14 @@ html {
             }
 
             #control-name-artist div.artist .placeholder-text {
-                width: 5rem;
+                width: 30%;
                 height: 1.2rem;
                 animation: 550ms ease-in-out 275ms infinite alternate load-artist
             }
 
             @keyframes load-artist {
                 to {
-                    width: 6rem
+                    width: 35%
                 }
             }
 
@@ -188,6 +188,7 @@ html {
     }
 
         #control-process .bar {
+            cursor: pointer;
             position: relative;
             width: 100%;
             height: 8px;
@@ -307,14 +308,14 @@ html {
 
             #control-lyric .placeholder-text {
                 display: inline-block;
-                width: 10rem;
+                width: 55%;
                 height: 1.4rem;
                 animation: 550ms ease-in-out infinite alternate load-lyric
             }
 
             @keyframes load-lyric {
                 to {
-                    width: 11.2rem
+                    width: 60%
                 }
             }
 
