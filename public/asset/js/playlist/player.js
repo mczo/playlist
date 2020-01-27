@@ -398,7 +398,9 @@ class PlayList {
                             terentOffsetTop = nodeTernet.offsetTop;
 
                     let nodeUlHeight = nodeTernet.offsetHeight;
-                    if(this.list.lyric.tlyric) nodeUlHeight += nodeTernet.nextElementSibling.offsetHeight;
+                    if( Object.keys(this.list.lyric.tlyric).length && !nodeTernet.nextElementSibling.dataset.time ) {
+                        nodeUlHeight += nodeTernet.nextElementSibling.offsetHeight;
+                    }
                     
                     target[key].querySelector('.list').style.height = nodeUlHeight + 'px';
                     target[key].querySelector('ul').style.transform = `translate3d(0, ${originalOffsetTop - terentOffsetTop}px, 0)`;
@@ -523,28 +525,33 @@ class PlayList {
             case playlist.lyric:
                 const nodeList = target[key].querySelector('.list');
                 const nodeUl = document.createElement('ul');
+                
                 for( const [lrcTime, lrcParagraph] of Object.entries(this.list.lyric.lrc) ) {
+                    const lrcNode = document.createElement('li');
+                    lrcNode.innerText = lrcParagraph;
+                    lrcNode.dataset.time = lrcTime;
+
+                    let tlyricNode = null;
                     for(const [tlyricTime, tlyricParagraph] of Object.entries(this.list.lyric.tlyric) ) {
                         if(lrcTime !== tlyricTime) continue;
 
-                        const   lrcNode = document.createElement('li'),
-                                tlyricNode = document.createElement('li');                  
-                        lrcNode.innerText = lrcParagraph;
-                        lrcNode.dataset.time = lrcTime;
-
+                        tlyricNode = document.createElement('li');                  
                         tlyricNode.innerText = tlyricParagraph;
-
-                        nodeUl.append(lrcNode, tlyricNode);
 
                         break;
                     }
+
+                    nodeUl.append(lrcNode);
+                    if(tlyricNode) nodeUl.append(tlyricNode);
                 }
 
                 nodeList.prepend(nodeUl);
 
                 const nodeLi1 = nodeList.querySelector('li');
                 let nodeUlHeight = nodeLi1.offsetHeight;
-                if(this.list.lyric.tlyric) nodeUlHeight += nodeLi1.nextElementSibling.offsetHeight;
+                if( Object.keys(this.list.lyric.tlyric).length && !nodeLi1.nextElementSibling.dataset.time ) {
+                    nodeUlHeight += nodeLi1.nextElementSibling.offsetHeight;
+                }
                 nodeList.style.height = nodeUlHeight + 'px';
 
                 break;

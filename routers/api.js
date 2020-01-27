@@ -30,10 +30,18 @@ module.exports = router => {
         };
 
         await rp(options)
+            .then(json => {
+                if(json.lrc.lyric === '' || json.lrc.lyric === null) {
+                    return Promise.reject('无歌词');
+                }
+
+                return Promise.resolve(json);
+            })
             .then(data => {
                 const lrcList = {
                     lrc: new Object(),
-                    tlyric: new Object()
+                    tlyric: new Object(),
+                    id: ctx.params.id
                 };
                 const original = {
                     lrc: data.lrc.lyric,
@@ -62,9 +70,16 @@ module.exports = router => {
                     }
                 }
 
-                lrcList.id = ctx.params.id;
-
                 ctx.body = lrcList;
+            })
+            .catch(err => {
+                ctx.body = {
+                    lrc: {
+                        0: err
+                    },
+                    tlyric: new Object(),
+                    id: ctx.params.id
+                };
             });
     });
 }
