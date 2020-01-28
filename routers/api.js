@@ -40,8 +40,7 @@ module.exports = router => {
             .then(data => {
                 const lrcList = {
                     lrc: new Object(),
-                    tlyric: new Object(),
-                    id: ctx.params.id
+                    tlyric: new Object()
                 };
                 const original = {
                     lrc: data.lrc.lyric,
@@ -77,8 +76,7 @@ module.exports = router => {
                     lrc: {
                         0: err
                     },
-                    tlyric: new Object(),
-                    id: ctx.params.id
+                    tlyric: new Object()
                 };
             });
     });

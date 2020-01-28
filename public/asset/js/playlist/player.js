@@ -4,6 +4,8 @@ const playlist = {
             proxySet: Symbol('handler set'),
             proxyDel: Symbol('handler deleteProperty'),
 
+            evenLoad: Symbol(),
+
             root: Symbol(),
             cover: Symbol(),
             name: Symbol(),
@@ -25,6 +27,8 @@ class PlayList {
         this.player = document.getElementById('player');
  
         this.control = new Proxy({
+            [playlist.evenLoad]: undefined,
+
             [playlist.root]: document.querySelector('#area-control'),
             [playlist.cover]: document.querySelector('#area-header .cover'),
             [playlist.name]: document.querySelector('#control-name-artist .name'),
@@ -61,7 +65,6 @@ class PlayList {
         }
 
         this.autoplay = true;
-        this.controlloaded = false;
         this.radom = false; // 随机播放
         this.touch = new Object();
     }
@@ -108,9 +111,7 @@ class PlayList {
                     .then(json => {
                         this.list.lyric = json;
 
-                        if(json.id == this.list.play[this.index].id) {
-                            Reflect.set(this.control, playlist.lyric, undefined);
-                        }
+                        Reflect.set(this.control, playlist.lyric, undefined);
                     });
                 this.timer.lrc = setInterval(_ => {
                     Reflect.get(this.control, playlist.lyric);
@@ -120,8 +121,6 @@ class PlayList {
                 
             // })
             .on('canplay', _ => {
-                this.controlloaded = true;
-
                 if(this.player.paused) this.autoplay = false; // 自动播放为关
                 else {
                     this.autoplay = true;
@@ -142,6 +141,7 @@ class PlayList {
                 Reflect.set(this.control, playlist.btnStatus, 'pause');
             })
             .on('ended', _ => {
+                Reflect.deleteProperty(this.control, playlist.evenLoad);
                 Reflect.deleteProperty(this.control, playlist.cover);
                 Reflect.deleteProperty(this.control, playlist.name);
                 Reflect.deleteProperty(this.control, playlist.artist);
@@ -154,8 +154,7 @@ class PlayList {
                 Reflect.get(this.control, playlist.btnNext);
             })
             .on('error', _ => {
-                // this.controlloaded = false;
-
+                Reflect.deleteProperty(this.control, playlist.evenLoad);
                 Reflect.deleteProperty(this.control, playlist.cover);
                 Reflect.deleteProperty(this.control, playlist.name);
                 Reflect.deleteProperty(this.control, playlist.artist);
@@ -181,6 +180,7 @@ class PlayList {
         }, { original: true, over: true })
 
         .on('click', this.control[playlist.btnPrev], _ => { //  上一首
+            Reflect.deleteProperty(this.control, playlist.evenLoad);
             Reflect.deleteProperty(this.control, playlist.cover);
             Reflect.deleteProperty(this.control, playlist.name);
             Reflect.deleteProperty(this.control, playlist.artist);
@@ -208,6 +208,7 @@ class PlayList {
         }, { over: true })
 
         .on('click', this.control[playlist.btnNext], _ => { //  下一首
+            Reflect.deleteProperty(this.control, playlist.evenLoad);
             Reflect.deleteProperty(this.control, playlist.cover);
             Reflect.deleteProperty(this.control, playlist.name);
             Reflect.deleteProperty(this.control, playlist.artist);
@@ -348,8 +349,6 @@ class PlayList {
     }
 
     [playlist.proxyGet] (target, key) {
-        if(!this.controlloaded) return target[key];
-
         switch(key) {
             case playlist.btnPrev:
                 if(!this.radom) {
@@ -416,10 +415,8 @@ class PlayList {
     [playlist.proxySet] (target, key, value) {
         switch (key) {
             case playlist.progress:
-                const {[playlist.progress]: bar, [playlist.progressBuff]: barBuff, [playlist.progressFill]: barFill} = this.control;
-
                 if(typeof value === 'number') { // 拖动进度条事件
-                    barFill.style.width = value + '%';
+                    this.control[playlist.progressFill].style.width = value + '%';
                 } else {
                     switch(value) {
                         case 'time':   
@@ -447,21 +444,21 @@ class PlayList {
                             break;
 
                         case 'play':
-                            barFill.style.animationPlayState = 'running';
+                            this.control[playlist.progressFill].style.animationPlayState = 'running';
                             break;
                         
                         case 'pause':
-                            barFill.style.animationPlayState = 'paused';
+                            this.control[playlist.progressFill].style.animationPlayState = 'paused';
                             break;
 
                         case 'add':
-                            barFill.style.animationDuration = (this.player.duration - this.player.currentTime) * 1000 + 'ms';
-                            barFill.style.animationName = 'music-bar-end';
+                            this.control[playlist.progressFill].style.animationDuration = (this.player.duration - this.player.currentTime) * 1000 + 'ms';
+                            this.control[playlist.progressFill].style.animationName = 'music-bar-end';
                             break;
 
                         case 'unset':
-                            barFill.style.animationDuration = 'unset';
-                            barFill.style.animationName = 'unset';
+                            this.control[playlist.progressFill].style.animationDuration = 'unset';
+                            this.control[playlist.progressFill].style.animationName = 'unset';
                             break;
                     }
                 }
@@ -560,6 +557,15 @@ class PlayList {
 
     [playlist.proxyDel] (target, key) {
         switch(key) {
+            case playlist.evenLoad:
+                if(window.stop !== undefined) {
+                    window.stop();
+                } else if(document.execCommand !== undefined) {
+                    document.execCommand("Stop", false);
+                }
+
+                break;
+
             case playlist.cover:
                 if(target[key].querySelector('img'))
                     target[key].querySelector('img').remove();
