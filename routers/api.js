@@ -1,8 +1,6 @@
 const rp = require('request-promise');
 const schedule = require('node-schedule');
-const NeteaseMusic = require('simple-netease-cloud-music');
 
-const nm = new NeteaseMusic();
 let playList = new Object();
 
 module.exports = router => {
@@ -11,14 +9,28 @@ module.exports = router => {
     });
 
     router.get('/song/:id', async ctx => {
-        await nm.url(ctx.params.id)
-            .then(res => {
-                const url = res.data[0].url;
+        const options = {
+            uri: `http://music.163.com/api/song/enhance/player/url?id=${ctx.params.id}&ids=[${ctx.params.id}]&br=96000`,
+            json: true
+        }
 
-                if(url)
-                    ctx.redirect(url.replace(/^http/, 'https'));
-                else 
-                    ctx.status = 404;
+        await rp(options)
+            .then(json => {
+                if(json.data === undefined) {
+                    return Promise.reject('undefined');
+                }
+
+                if(json.data.length > 0) {
+                    return Promise.resolve(json.data[0]);
+                } else {
+                    return Promise.reject('undefined');
+                }
+            })
+            .then(data => {
+                ctx.redirect(data.url.replace(/^http/, 'https'));
+            })
+            .catch(err => {
+                ctx.status = 404;
             });
     });
 

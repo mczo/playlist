@@ -661,11 +661,6 @@ setprototypeof@1.1.1:
   resolved "https://registry.yarnpkg.com/setprototypeof/-/setprototypeof-1.1.1.tgz#7e95acb24aa92f5885e0abef5ba131330d4ae683"
   integrity sha512-JvdAWfbXeIGaZ9cILp38HntZSFSo3mWg6xGcJJsd+d4aRMOqauag1C63dJfDw7OaMYwEbHMOxEZ1lqVRYP2OAw==
 
-simple-netease-cloud-music@^0.4.4:
-  version "0.4.4"
-  resolved "https://registry.yarnpkg.com/simple-netease-cloud-music/-/simple-netease-cloud-music-0.4.4.tgz#771dc543b12cde28166d4498fee193eb3ae0c38d"
-  integrity sha512-7TNNYHRSKX6dcLdl+Ar3cKZLEMbXLW5lnAO15kMN6TVRJ+m8Xq0msXXL/V+KU7Va2v2BQ6pbDHxTT0iyuMHYRA==
-
 sorted-array-functions@^1.0.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/sorted-array-functions/-/sorted-array-functions-1.2.0.tgz#43265b21d6e985b7df31621b1c11cc68d8efc7c3"
