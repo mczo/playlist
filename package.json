@@ -16,6 +16,6 @@
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "simple-netease-cloud-music": "^0.4.4",
-    "terser": "^4.0.0"
+    "terser": "^4.8.1"
   }
 }
